@@ -24,6 +24,7 @@ class EndToEndTests(unittest.TestCase):
                     "name": "Email docente",
                     "status": "Presente e chiaro",
                     "value": email.value,
+                    "source_location": email.location,
                     "issue_type": "Da tipizzare",
                     "question": "",
                 }],
@@ -53,6 +54,16 @@ class EndToEndTests(unittest.TestCase):
             self.assertEqual(result["guided_path"][0]["specimen_count"], 1)
             self.assertEqual(result["documents"][0]["expected_fields"][0]["evidence"]["location"], "blocco 1")
             self.assertGreaterEqual(len(result["documents"][0]["candidates"]), 2)
+
+    def test_skipped_type_is_written_as_incomplete_and_session_can_continue(self):
+        with tempfile.TemporaryDirectory() as folder:
+            states = {"Lettera di incarico": "Tipologia chiusa", "Programma Edizione": "Da riprendere"}
+            notes = {"Programma Edizione": "Serve un programma reale del corso"}
+            guided = summarize_guided_path(list(states), states, [], notes)
+            path = append_round([], include_values=True, guided_path=guided, completion_state="DA COMPLETARE", data_dir=Path(folder))
+            result = json.loads(path.read_text(encoding="utf-8"))
+            self.assertEqual(result["completion_state"], "DA COMPLETARE")
+            self.assertEqual(result["guided_path"][1]["note_to_resume"], notes["Programma Edizione"])
 
 
 if __name__ == "__main__":

@@ -5,12 +5,11 @@ from __future__ import annotations
 import json
 from pathlib import Path
 import tkinter as tk
-from tkinter import filedialog, messagebox, ttk
-import webbrowser
+from tkinter import filedialog, messagebox, simpledialog, ttk
 
 from .extractors import ExtractedDocument, read_document
 from .learning_store import append_round, clear_session, default_data_dir, load_session, save_session
-from .learning_session import summarize_guided_path, validate_document_type, validate_final_path
+from .learning_session import add_shared_field, field_names_for_type, summarize_guided_path, validate_document_type, validate_final_path
 
 
 DOC_TYPES: dict[str, list[str]] = {
@@ -44,6 +43,7 @@ class LearningApp(tk.Tk):
         self.field_rows: list[dict[str, tk.Widget]] = []
         self.selected_field_index = tk.IntVar(value=0)
         self.step_states = {name: "Da raccogliere" for name in GUIDED_STEPS}
+        self.step_notes: dict[str, str] = {}
         self.active_type = GUIDED_STEPS[0]
         self._session_save_job = None
         self.data_dir = default_data_dir()
@@ -175,7 +175,7 @@ class LearningApp(tk.Tk):
         ttk.Button(footer, text="Esporta log JSON…", command=self.export_log).grid(row=1, column=1, sticky="w", padx=5)
         ttk.Button(footer, text="Tipo compreso · prossimo →", command=self.complete_step).grid(row=1, column=2, sticky="w", padx=5)
         ttk.Button(footer, text="Genera log finale", command=self.save_round).grid(row=1, column=3, sticky="w", padx=5)
-        ttk.Button(footer, text="Documento non disponibile", command=self.mark_step_unavailable).grid(row=1, column=4, sticky="w", padx=5)
+        ttk.Button(footer, text="Salta e riprendi dopo…", command=self.skip_step).grid(row=1, column=4, sticky="w", padx=5)
         self.status_var = tk.StringVar(value=f"Log locale: {self.data_dir / 'learning-log.jsonl'}")
         ttk.Label(footer, textvariable=self.status_var, style="Sub.TLabel").grid(row=2, column=0, columnspan=5, sticky="w", pady=(7, 0))
         self.coverage_confirmed = tk.BooleanVar(value=False)
@@ -195,6 +195,7 @@ class LearningApp(tk.Tk):
         for name, state in saved.get("step_states", {}).items():
             if name in self.step_states:
                 self.step_states[name] = state
+        self.step_notes = {name: str(note) for name, note in saved.get("step_notes", {}).items() if name in self.step_states}
         active = saved.get("active_type")
         if active in GUIDED_STEPS:
             self.active_type = active
@@ -236,7 +237,7 @@ class LearningApp(tk.Tk):
 
     def _persist_session(self) -> None:
         try:
-            save_session(self.documents, self.step_states, self.active_type, data_dir=self.data_dir)
+            save_session(self.documents, self.step_states, self.active_type, step_notes=self.step_notes, data_dir=self.data_dir)
         except OSError as exc:
             if hasattr(self, "status_var"):
                 self.status_var.set(f"Errore nel salvataggio progressi: {exc}")
@@ -258,12 +259,15 @@ class LearningApp(tk.Tk):
             return
         try:
             parsed = read_document(name)
-            doc = {"path": name, "name": Path(name).name, "parsed": parsed, "type": self.active_type, "variant": "", "note": "", "fields": self._make_fields(DOC_TYPES[self.active_type])}
+            current_samples = [item for item in self.documents if item["type"] == self.active_type]
+            field_names = field_names_for_type(DOC_TYPES[self.active_type], current_samples)
+            doc = {"path": name, "name": Path(name).name, "parsed": parsed, "type": self.active_type, "variant": "", "note": "", "fields": self._make_fields(field_names)}
         except Exception as exc:
             messagebox.showerror("Lettura documento", f"Non riesco a leggere {Path(name).name}:\n{exc}")
             return
         self.documents.append(doc)
         self.step_states[self.active_type] = "Esemplari raccolti"
+        self.step_notes.pop(self.active_type, None)
         self._persist_session()
         self._render_documents()
         self._render_steps()
@@ -271,7 +275,7 @@ class LearningApp(tk.Tk):
 
     @staticmethod
     def _make_fields(names: list[str]) -> list[dict[str, str]]:
-        return [{"name": name, "status": "Da valutare", "value": "", "issue_type": "Da tipizzare", "question": "", "evidence": None} for name in names]
+        return [{"name": name, "status": "Da verificare", "value": "", "source_location": "", "issue_type": "Da tipizzare", "question": "", "evidence": None} for name in names]
 
     def _render_documents(self) -> None:
         self.doc_list.delete(0, "end")
@@ -288,7 +292,7 @@ class LearningApp(tk.Tk):
         for index, name in enumerate(GUIDED_STEPS):
             specimens = sum(doc["type"] == name for doc in self.documents)
             state = self.step_states[name]
-            marker = "✓" if state == "Tipologia chiusa" else ("!" if state == "In attesa del documento" else ("◉" if specimens else "○"))
+            marker = "✓" if state == "Tipologia chiusa" else ("↻" if state == "Da riprendere" else ("◉" if specimens else "○"))
             self.step_list.insert("end", f"{marker} {name} ({specimens})")
             if name == self.active_type:
                 self.step_list.selection_set(index)
@@ -299,13 +303,13 @@ class LearningApp(tk.Tk):
         if not selection:
             return
         selected_step = selection[0]
-        blocked_prior = [name for name in GUIDED_STEPS[:selected_step] if self.step_states[name] != "Tipologia chiusa"]
+        blocked_prior = [name for name in GUIDED_STEPS[:selected_step] if self.step_states[name] not in {"Tipologia chiusa", "Da riprendere"}]
         if blocked_prior:
             self.step_list.selection_clear(0, "end")
             active_index = GUIDED_STEPS.index(self.active_type)
             self.step_list.selection_set(active_index)
             self.step_list.activate(active_index)
-            messagebox.showinfo("Percorso sequenziale", f"Completa «{blocked_prior[0]}» prima di passare a un documento successivo.")
+            messagebox.showinfo("Percorso sequenziale", f"Completa oppure salta «{blocked_prior[0]}» prima di passare a un documento successivo.")
             return
         self._save_current_form()
         self.current = -1
@@ -328,7 +332,6 @@ class LearningApp(tk.Tk):
     def _select_document(self, index: int) -> None:
         self._save_current_form()
         self.current = index
-        self.coverage_confirmed.set(False)
         self.coverage_confirmed.set(False)
         self.doc_list.selection_clear(0, "end")
         self.doc_list.selection_set(index)
@@ -366,6 +369,7 @@ class LearningApp(tk.Tk):
             field["name"] = row["name"].get().strip()
             field["status"] = row["status"].get()
             field["value"] = row["value"].get().strip()
+            field["source_location"] = row["source_location"].get().strip()
             field["issue_type"] = row["issue_type"].get()
             field["question"] = row["question"].get().strip()
         self._persist_session()
@@ -413,16 +417,20 @@ class LearningApp(tk.Tk):
             value = ttk.Entry(card)
             value.insert(0, field["value"])
             value.grid(row=1, column=1, columnspan=3, sticky="ew", pady=(5, 0))
-            ttk.Label(card, text="Natura del dubbio").grid(row=2, column=0, sticky="w", padx=(0, 8), pady=(5, 0))
+            ttk.Label(card, text="Pagina / posizione della fonte").grid(row=2, column=0, sticky="w", padx=(0, 8), pady=(5, 0))
+            source_location = ttk.Entry(card)
+            source_location.insert(0, field.get("source_location", ""))
+            source_location.grid(row=2, column=1, columnspan=3, sticky="ew", pady=(5, 0))
+            ttk.Label(card, text="Natura del dubbio").grid(row=3, column=0, sticky="w", padx=(0, 8), pady=(5, 0))
             issue_type = ttk.Combobox(card, values=ISSUE_TYPES, state="readonly", width=25)
             issue_type.set(field.get("issue_type", "Da tipizzare"))
-            issue_type.grid(row=2, column=1, sticky="ew", padx=(0, 8), pady=(5, 0))
-            ttk.Label(card, text="Domanda da chiarire").grid(row=2, column=2, sticky="e", padx=(0, 4), pady=(5, 0))
+            issue_type.grid(row=3, column=1, sticky="ew", padx=(0, 8), pady=(5, 0))
+            ttk.Label(card, text="Domanda da chiarire").grid(row=3, column=2, sticky="e", padx=(0, 4), pady=(5, 0))
             question = ttk.Entry(card)
             question.insert(0, field.get("question", ""))
-            question.grid(row=2, column=3, sticky="ew", pady=(5, 0))
-            self.field_rows.append({"field": field, "name": name, "status": status, "value": value, "issue_type": issue_type, "question": question})
-            for widget in (name, value, question):
+            question.grid(row=3, column=3, sticky="ew", pady=(5, 0))
+            self.field_rows.append({"field": field, "name": name, "status": status, "value": value, "source_location": source_location, "issue_type": issue_type, "question": question})
+            for widget in (name, value, source_location, question):
                 widget.bind("<KeyRelease>", self._schedule_session_save)
             status.bind("<<ComboboxSelected>>", self._schedule_session_save)
             issue_type.bind("<<ComboboxSelected>>", self._schedule_session_save)
@@ -432,7 +440,13 @@ class LearningApp(tk.Tk):
             messagebox.showinfo("Seleziona un documento", "Aggiungi e seleziona prima un documento.")
             return
         self._save_current_form()
-        self.documents[self.current]["fields"].append({"name": "Nuovo campo", "status": "Da valutare", "value": "", "issue_type": "Da tipizzare", "question": "", "evidence": None})
+        name = simpledialog.askstring("Nuova variabile", "Scrivi il nome del campo da mappare su tutti gli esemplari di questo tipo:", parent=self)
+        if not name or not name.strip():
+            return
+        specimens = [item for item in self.documents if item["type"] == self.active_type]
+        if not add_shared_field(specimens, name):
+            messagebox.showinfo("Campo già presente", f"«{name.strip()}» è già presente su tutti gli esemplari di questa tipologia.")
+            return
         self.selected_field_index.set(len(self.documents[self.current]["fields"]) - 1)
         self._draw_fields()
         self._persist_session()
@@ -464,6 +478,8 @@ class LearningApp(tk.Tk):
         candidate = self.documents[self.current]["parsed"].candidates[int(selected[0])]
         row["value"].delete(0, "end")
         row["value"].insert(0, candidate.value)
+        row["source_location"].delete(0, "end")
+        row["source_location"].insert(0, candidate.location)
         row["status"].set("Presente ma ambiguo")
         row["issue_type"].set("Significato del campo")
         row["question"].delete(0, "end")
@@ -500,7 +516,7 @@ class LearningApp(tk.Tk):
         fields = []
         for field in doc["fields"]:
             evidence = field.get("evidence")
-            item = {"expected_field": field["name"], "status": field["status"], "source_document": Path(doc["path"]).name, "source_location": evidence.get("location") if evidence else None, "issue_type": field.get("issue_type", "Da tipizzare"), "question_to_resolve": field.get("question", "")}
+            item = {"expected_field": field["name"], "status": field["status"], "source_document": Path(doc["path"]).name, "source_location": field.get("source_location") or (evidence.get("location") if evidence else None), "issue_type": field.get("issue_type", "Da tipizzare"), "question_to_resolve": field.get("question", "")}
             if include_values:
                 item["reviewed_value"] = field["value"]
                 item["evidence"] = field.get("evidence")
@@ -514,20 +530,6 @@ class LearningApp(tk.Tk):
             result["candidates"] = [candidate.to_dict() for candidate in parsed.candidates]
         return result
 
-    def _unresolved_questions(self, docs: list[dict]) -> list[str]:
-        unresolved = []
-        for doc in docs:
-            for field in doc["fields"]:
-                if field["status"] in UNDERSTOOD_STATUSES:
-                    if field["status"] == "Assente in questa variante · confermato" and not field.get("question", "").strip():
-                        unresolved.append(f"{doc['name']} · {field['name']} · annota perché è confermato assente")
-                    continue
-                if not field.get("question", "").strip() or field.get("issue_type", "Da tipizzare") == "Da tipizzare":
-                    unresolved.append(f"{doc['name']} · {field['name']}")
-                else:
-                    unresolved.append(f"{doc['name']} · {field['name']} · {field['status']}")
-        return unresolved
-
     def complete_step(self) -> None:
         self._save_current_form()
         specimens = [doc for doc in self.documents if doc["type"] == self.active_type]
@@ -536,21 +538,39 @@ class LearningApp(tk.Tk):
             messagebox.showinfo("Il percorso resta su questa tipologia", "Non passo al documento successivo finché tutto non è compreso. Aggiungi esemplari, chiarisci i campi o completa la mappatura:\n\n" + "\n".join(blockers[:14]))
             return
         self.step_states[self.active_type] = "Tipologia chiusa"
+        self.step_notes.pop(self.active_type, None)
         self._render_steps()
         self._persist_session()
         self._advance_step()
 
-    def mark_step_unavailable(self) -> None:
-        self.step_states[self.active_type] = "In attesa del documento"
+    def skip_step(self) -> None:
+        self._save_current_form()
+        note = simpledialog.askstring(
+            "Salta e riprendi dopo",
+            f"Che documento o variabile manca per «{self.active_type}»? Scrivi cosa servirà quando riprenderai:",
+            parent=self,
+        )
+        if note is None:
+            return
+        if not note.strip():
+            messagebox.showinfo("Nota necessaria", "Scrivi almeno quale documento o variabile manca; la nota sarà riportata nel log.")
+            return
+        self.step_notes[self.active_type] = note.strip()
+        self.step_states[self.active_type] = "Da riprendere"
         self._render_steps()
-        self.status_var.set(f"Percorso sospeso su «{self.active_type}»: carica l’esemplare per riprendere.")
         self._persist_session()
-        messagebox.showinfo("Percorso in attesa", f"Non salto questa tipologia. Il percorso resterà fermo su «{self.active_type}» finché non sarà caricato e compreso un esemplare.")
+        self.status_var.set(f"«{self.active_type}» segnato da riprendere. Puoi continuare e tornare a questa tipologia dalla lista.")
+        self._advance_step()
 
     def _advance_step(self) -> None:
-        next_index = next((i for i, name in enumerate(GUIDED_STEPS) if self.step_states[name] != "Tipologia chiusa"), None)
+        current_index = GUIDED_STEPS.index(self.active_type)
+        next_index = next((i for i, name in enumerate(GUIDED_STEPS[current_index + 1:], current_index + 1) if self.step_states[name] not in {"Tipologia chiusa", "Da riprendere"}), None)
         if next_index is None:
-            self.status_var.set("Percorso concluso: genera il log finale con le mappature e le richieste residue.")
+            skipped = [name for name in GUIDED_STEPS if self.step_states[name] == "Da riprendere"]
+            if skipped:
+                self.status_var.set("Hai raggiunto la fine: genera il log con i punti da riprendere oppure seleziona una tipologia ↻ per completarla.")
+            else:
+                self.status_var.set("Percorso concluso: genera il log finale con le mappature.")
             return
         self.active_type = GUIDED_STEPS[next_index]
         self.step_list.selection_clear(0, "end")
@@ -559,28 +579,25 @@ class LearningApp(tk.Tk):
         self.on_step_select()
 
     def save_round(self) -> None:
-        if not self.documents:
-            messagebox.showinfo("Percorso vuoto", "Raccogli almeno un esemplare prima di generare il log finale.")
-            return
         self._save_current_form()
-        pending_steps = validate_final_path(self.step_states)
+        pending_steps = validate_final_path(self.step_states, self.step_notes)
         if pending_steps:
-            messagebox.showinfo("Percorso non concluso", "Per generare il log finale devi completare ogni tipologia. I documenti mancanti restano in attesa e non possono essere saltati:\n\n" + "\n".join(pending_steps))
-            return
-        unresolved = self._unresolved_questions(self.documents)
-        if unresolved:
-            messagebox.showinfo("Tipizza i dubbi", "Prima del log finale, indica la natura e la domanda per ogni campo non risolto:\n\n" + "\n".join(unresolved[:12]))
+            messagebox.showinfo("Percorso da completare", "Per ogni tipologia devi confermare che è compresa oppure premere «Salta e riprendi dopo» e annotare cosa manca.\n\n" + "\n".join(pending_steps))
             return
         docs = [self._serialize_document(doc, self.save_values_var.get()) for doc in self.documents]
-        guided_path = summarize_guided_path(GUIDED_STEPS, self.step_states, self.documents)
+        guided_path = summarize_guided_path(GUIDED_STEPS, self.step_states, self.documents, self.step_notes)
+        completion_state = "DA COMPLETARE" if any(state == "Da riprendere" for state in self.step_states.values()) else "COMPLETO"
         try:
-            log_path = append_round(docs, include_values=self.save_values_var.get(), guided_path=guided_path)
+            log_path = append_round(docs, include_values=self.save_values_var.get(), guided_path=guided_path, completion_state=completion_state)
         except OSError as exc:
             messagebox.showerror("Salvataggio log", str(exc))
             return
-        clear_session(data_dir=self.data_dir)
+        if completion_state == "COMPLETO":
+            clear_session(data_dir=self.data_dir)
         self.status_var.set(f"Log finale generato · {log_path}")
-        messagebox.showinfo("Log finale generato", f"Il percorso guidato e le mappature sono stati registrati:\n\n{log_path}\n\nIl log include candidati, contesti, fonti, varianti e domande tipizzate. I file originali e il testo integrale non vengono copiati.")
+        pending = sum(state == "Da riprendere" for state in self.step_states.values())
+        detail = f"\n\nStato: {completion_state}. Tipologie da riprendere: {pending}." if pending else f"\n\nStato: {completion_state}."
+        messagebox.showinfo("Log finale generato", f"Il percorso guidato e le mappature sono stati registrati:\n\n{log_path}{detail}\n\nIl log indica cosa manca per ogni tipologia sospesa. I file originali e il testo integrale non vengono copiati.")
 
     def open_log_folder(self) -> None:
         self.data_dir.mkdir(parents=True, exist_ok=True)

@@ -5,17 +5,19 @@ Prototipo desktop Windows per svolgere round di raccolta strutturata prima di sc
 ## Cosa fa
 
 - Guida Lucrezia attraverso una tipologia alla volta e chiede un solo esemplare per selezione.
-- Resta sul tipo corrente finché tutte le variabili e varianti non sono state confermate. Un documento indisponibile sospende il percorso; non si può saltare.
+- Guida una tipologia alla volta; se manca un documento o un chiarimento, “Salta e riprendi dopo” registra la nota, passa al tipo successivo e lascia il tipo selezionabile per riprenderlo.
 - Consente più esemplari dello stesso tipo, ognuno etichettato con la variante/caso rappresentato.
+- Un nuovo campo scoperto viene aggiunto a ogni esemplare della stessa tipologia; la chiusura del tipo verifica che tutti i campioni abbiano lo stesso schema di variabili.
 - Seleziona localmente PDF testuali, DOCX, TXT, MD o CSV.
 - Mostra il testo e occorrenze letterali di email, protocollo, importi, date e intervalli orari, con pagina o sezione di origine.
 - Propone campi attesi per ciascuna tipologia. Ogni campo può essere marcato come presente e chiaro, ambiguo, non trovato, illeggibile, non previsto o ancora da valutare.
-- Permette di collegare un’occorrenza al campo selezionato, correggere il valore, aggiungere campi e tipizzare ogni dubbio. Ogni mappatura conserva fonte, pagina/sezione, contesto, valore revisionato, stato e domanda di chiarimento.
+- Permette di collegare un’occorrenza al campo selezionato, correggere il valore, registrare pagina/posizione, aggiungere campi e tipizzare ogni dubbio. Ogni mappatura conserva fonte, contesto, valore revisionato, stato e domanda di chiarimento.
+- Il log finale distingue `COMPLETO` da `DA COMPLETARE` e riporta per ogni tipo sospeso la nota e i campi rimasti da chiarire.
 - Salva round in JSONL sul profilo dell’utente Windows e consente di esportarli in JSON.
 
 ## Cosa non fa
 
-Non addestra un modello, non modifica da sola le regole, non deduce che un’occorrenza appartenga a un campo, non genera ordinativi e non decide quale documento sia corretto in presenza di duplicati. Le estrazioni sono candidati da verificare. Il passaggio al documento successivo è bloccato finché i campi restano da verificare, ambigui, non rilevati o illeggibili. PDF scansionati (senza testo selezionabile), DOC e immagini non sono supportati in questa fase.
+Non addestra un modello, non modifica da sola le regole, non deduce che un’occorrenza appartenga a un campo, non genera ordinativi e non decide quale documento sia corretto in presenza di duplicati. Le estrazioni sono candidati da verificare. Un tipo con campi non risolti non può essere chiuso, ma può essere saltato con una nota obbligatoria e ripreso in seguito; il log lo segnala come incompleto. PDF scansionati (senza testo selezionabile), DOC e immagini non sono supportati in questa fase.
 
 ## Privacy e percorso dati
 

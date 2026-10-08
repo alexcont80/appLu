@@ -16,8 +16,11 @@ Programma Edizione, CV, modelli di ordinativo e altri documenti.
 
 Si lavora su UNA tipologia alla volta. Il passaggio successivo resta bloccato
 finché tutti i campi e tutte le varianti del tipo corrente non sono stati
-verificati. Se il documento non è disponibile, premi “Documento non
-disponibile”: il percorso resta fermo su quel punto, senza saltarlo.
+verificati. Se in quel momento manca un documento o una variabile, premi
+“Salta e riprendi dopo…”, scrivi cosa manca e continua con il tipo successivo.
+La tipologia saltata resta nella lista con il simbolo ↻: selezionala quando hai
+il documento o la risposta e continua da lì. I progressi vengono salvati anche
+quando chiudi l’app.
 
 3. RACCOGLIERE UN ESEMPLARE
 
@@ -36,13 +39,15 @@ disponibile”: il percorso resta fermo su quel punto, senza saltarlo.
 - L’elenco “Campi attesi” è una traccia iniziale. Controlla anche il documento
   intero, perché potrebbero esserci altri campi.
 - Se manca un campo nell’elenco, premi “Aggiungi campo atteso” e scrivine il
-  nome.
+  nome. Il nuovo campo viene aggiunto a tutti gli esemplari di quel tipo, così
+  dovrai controllare la stessa variabile anche nelle altre varianti.
 - A destra compaiono occorrenze letterali (email, date, importi, protocollo,
   orari) con pagina e testo circostante. Sono suggerimenti tecnici: non sono
   interpretati automaticamente.
 - Per collegare un’occorrenza, selezionala, seleziona il pulsante rotondo del
   campo corrispondente e premi “Collega al campo selezionato”. Verifica sempre
-  il valore e la fonte nel testo mostrato sotto.
+  il valore e la fonte nel testo mostrato sotto. Controlla “Pagina / posizione
+  della fonte”; il log deve indicare da dove deriva ogni campo presente.
 - Imposta lo stato di ogni campo:
   * “Presente e chiaro”: hai verificato dove si trova e cosa significa.
   * “Assente in questa variante · confermato”: hai verificato che questo caso
@@ -50,7 +55,8 @@ disponibile”: il percorso resta fermo su quel punto, senza saltarlo.
   * “Non previsto · confermato”: il campo non fa parte di questa tipologia.
   * “Presente ma ambiguo”, “Non rilevato”, “Illeggibile” o “Da verificare”:
     il significato non è ancora certo. Scegli “Natura del dubbio” e scrivi una
-    domanda precisa. Il programma NON consentirà di passare al tipo successivo.
+    domanda precisa. Per proseguire subito, usa “Salta e riprendi dopo…” e
+    riporta la variabile da chiarire nella nota richiesta.
 
 5. QUANDO PASSARE AL DOCUMENTO SUCCESSIVO
 
@@ -59,15 +65,21 @@ disponibile”: il percorso resta fermo su quel punto, senza saltarlo.
 - Aggiungi le variabili che hai trovato ma che non erano state proposte.
 - Metti la spunta “Ho confrontato tutti gli esemplari…” solo dopo il confronto.
 - Premi “Tipo compreso · prossimo”.
-- Se rimangono dubbi, raccogli altri esempi o chiariscili; il percorso resta
-  sul tipo corrente.
+- Se non puoi proseguire ora, premi “Salta e riprendi dopo…” e scrivi in modo
+  concreto quale file, campo o chiarimento manca. Poi la guida passa al tipo
+  successivo.
+- Per riprendere un tipo saltato, seleziona la riga ↻ nella lista a sinistra.
+  Aggiungi l’esemplare mancante oppure completa la verifica e premi “Tipo
+  compreso · prossimo”.
 
 6. LOG FINALE
 
-Quando ogni tipologia è stata compresa, premi “Genera log finale”. Il log
-registra tipologie, esemplari e varianti, candidati estratti con contesto e
-pagina, mappature campo-valore, stati e dubbi/domande che hanno guidato la
-verifica. Si trova in:
+Quando hai completato o saltato con una nota ogni tipologia, premi “Genera log
+finale”. Il log registra tipologie, esemplari e varianti, candidati estratti
+con contesto e pagina, mappature campo-valore, stati e dubbi/domande. Ogni
+tipologia saltata viene marcata “DA COMPLETARE” e include la nota su cosa
+manca; puoi riprendere la sessione, caricare i documenti e generare un nuovo
+log aggiornato. Il file si trova in:
 
 %LOCALAPPDATA%\AppLu\Apprendimento\learning-log.jsonl
 

@@ -52,10 +52,11 @@ class StoreTests(unittest.TestCase):
                 "fields": [{"name": "Email", "status": "Presente e chiaro", "value": "docente@example.org"}],
                 "parsed": object(),
             }]
-            save_session(documents, {"Lettera di incarico": "Esemplari raccolti"}, "Lettera di incarico", data_dir=Path(folder))
+            save_session(documents, {"Lettera di incarico": "Da riprendere"}, "Lettera di incarico", step_notes={"Lettera di incarico": "Manca un esempio"}, data_dir=Path(folder))
             restored = load_session(data_dir=Path(folder))
             self.assertEqual(restored["active_type"], "Lettera di incarico")
             self.assertEqual(restored["documents"][0]["fields"][0]["value"], "docente@example.org")
+            self.assertEqual(restored["step_notes"]["Lettera di incarico"], "Manca un esempio")
             serialized = json.dumps(restored, ensure_ascii=False)
             self.assertNotIn("parsed", serialized)
 

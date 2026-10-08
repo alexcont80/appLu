@@ -20,7 +20,7 @@ def default_data_dir() -> Path:
     return root / "AppLu" / "Apprendimento"
 
 
-def append_round(documents: list[dict[str, Any]], *, include_values: bool, guided_path: list[dict[str, Any]] | None = None, data_dir: Path | None = None) -> Path:
+def append_round(documents: list[dict[str, Any]], *, include_values: bool, guided_path: list[dict[str, Any]] | None = None, completion_state: str = "COMPLETO", data_dir: Path | None = None) -> Path:
     folder = (data_dir or default_data_dir())
     folder.mkdir(parents=True, exist_ok=True)
     log_path = folder / "learning-log.jsonl"
@@ -30,6 +30,7 @@ def append_round(documents: list[dict[str, Any]], *, include_values: bool, guide
         "timestamp_utc": datetime.now(timezone.utc).isoformat(),
         "application": "AppLu local learning workbench",
         "evidence_detail_included": include_values,
+        "completion_state": completion_state,
         "guided_path": guided_path or [],
         "documents": documents,
     }
@@ -53,7 +54,7 @@ def session_path(data_dir: Path | None = None) -> Path:
     return (data_dir or default_data_dir()) / "session-progress.json"
 
 
-def save_session(documents: list[dict[str, Any]], step_states: dict[str, str], active_type: str, *, data_dir: Path | None = None) -> Path:
+def save_session(documents: list[dict[str, Any]], step_states: dict[str, str], active_type: str, *, step_notes: dict[str, str] | None = None, data_dir: Path | None = None) -> Path:
     """Persist labels and review state, never source document text."""
     target = session_path(data_dir)
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -61,6 +62,7 @@ def save_session(documents: list[dict[str, Any]], step_states: dict[str, str], a
         "schema_version": 1,
         "active_type": active_type,
         "step_states": step_states,
+        "step_notes": step_notes or {},
         "documents": [
             {
                 "path": doc["path"],
