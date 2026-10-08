@@ -36,4 +36,4 @@ poi visitare `http://localhost:8000` dalla cartella `appLu`.
 3. Ricevere i due modelli Word degli ordinativi, i PDF dei piani e campioni rappresentativi.
 4. Implementare i moduli definitivi per regole, generazione DOCX, revisione e conversione PDF.
 
-Per i dettagli, i limiti e il build portable Windows vedere [`learning_app/README.md`](learning_app/README.md).
+Il percorso desktop è guidato e sequenziale: un tipo non si chiude finché campi e varianti non risultano compresi. Per i dettagli vedere [`learning_app/README.md`](learning_app/README.md) e la guida inclusa [`learning_app/LEGGIMI_PRIMA.txt`](learning_app/LEGGIMI_PRIMA.txt).

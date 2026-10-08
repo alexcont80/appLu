@@ -3,6 +3,8 @@ import unittest
 from pathlib import Path
 
 from learning_app.extractors import find_candidates, read_document
+from docx import Document
+import fitz
 
 
 class ExtractionTests(unittest.TestCase):
@@ -22,6 +24,24 @@ class ExtractionTests(unittest.TestCase):
             parsed = read_document(path)
             self.assertEqual(parsed.pages, 1)
             self.assertEqual(parsed.candidates[0].kind, "Email")
+
+    def test_docx_and_pdf_candidates_keep_source_locations(self):
+        with tempfile.TemporaryDirectory() as folder:
+            docx_path = Path(folder) / "esempio.docx"
+            doc = Document()
+            doc.add_paragraph("Contatto: lucia@example.org")
+            doc.save(docx_path)
+            word_read = read_document(docx_path)
+            self.assertEqual(word_read.candidates[0].location, "documento DOCX")
+
+            pdf_path = Path(folder) / "esempio.pdf"
+            pdf = fitz.open()
+            page = pdf.new_page()
+            page.insert_text((50, 50), "Email: lucia@example.org")
+            pdf.save(pdf_path)
+            pdf.close()
+            pdf_read = read_document(pdf_path)
+            self.assertEqual(pdf_read.candidates[0].location, "pagina 1")
 
 
 if __name__ == "__main__":

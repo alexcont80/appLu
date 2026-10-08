@@ -1,0 +1,96 @@
+APPLU — PERCORSO GUIDATO DI APPRENDIMENTO
+Istruzioni semplici per Lucrezia
+=====================================
+
+1. AVVIARE
+
+- Estrai tutta la cartella ZIP in una cartella dove hai diritto di scrittura, per esempio Documenti\AppLu.
+- Apri la cartella estratta.
+- Fai doppio clic su AppLu-Apprendimento.exe.
+- Non serve installare Python, non servono diritti di amministratore, servizi o driver.
+
+2. COME FUNZIONA IL PERCORSO
+
+L’app mostra a sinistra una lista ordinata di tipologie: lettera di incarico,
+Programma Edizione, CV, modelli di ordinativo e altri documenti.
+
+Si lavora su UNA tipologia alla volta. Il passaggio successivo resta bloccato
+finché tutti i campi e tutte le varianti del tipo corrente non sono stati
+verificati. Se il documento non è disponibile, premi “Documento non
+disponibile”: il percorso resta fermo su quel punto, senza saltarlo.
+
+3. RACCOGLIERE UN ESEMPLARE
+
+- Seleziona la tipologia corrente nella lista a sinistra.
+- Premi “Aggiungi un esemplare…” e scegli un solo file.
+- Scegli il tipo corretto se diverso da quello proposto.
+- Nel campo “Variante / caso rappresentato”, scrivi in modo concreto che
+  compilazione rappresenta. Esempi: “docente esterno, tariffa oraria”; “docente
+  ARCS, attività fuori orario”; “forfait giornaliero”; “programma con tre
+  interventi dello stesso docente”.
+- Se esistono casi diversi dello stesso modulo, aggiungi un altro esemplare
+  dello stesso tipo e descrivine la variante. Ogni esemplare rimane separato.
+
+4. MAPPARE I CAMPI
+
+- L’elenco “Campi attesi” è una traccia iniziale. Controlla anche il documento
+  intero, perché potrebbero esserci altri campi.
+- Se manca un campo nell’elenco, premi “Aggiungi campo atteso” e scrivine il
+  nome.
+- A destra compaiono occorrenze letterali (email, date, importi, protocollo,
+  orari) con pagina e testo circostante. Sono suggerimenti tecnici: non sono
+  interpretati automaticamente.
+- Per collegare un’occorrenza, selezionala, seleziona il pulsante rotondo del
+  campo corrispondente e premi “Collega al campo selezionato”. Verifica sempre
+  il valore e la fonte nel testo mostrato sotto.
+- Imposta lo stato di ogni campo:
+  * “Presente e chiaro”: hai verificato dove si trova e cosa significa.
+  * “Assente in questa variante · confermato”: hai verificato che questo caso
+    non contiene il campo; scrivi il motivo nella domanda/nota.
+  * “Non previsto · confermato”: il campo non fa parte di questa tipologia.
+  * “Presente ma ambiguo”, “Non rilevato”, “Illeggibile” o “Da verificare”:
+    il significato non è ancora certo. Scegli “Natura del dubbio” e scrivi una
+    domanda precisa. Il programma NON consentirà di passare al tipo successivo.
+
+5. QUANDO PASSARE AL DOCUMENTO SUCCESSIVO
+
+- Ripeti la raccolta per ogni variante dello stesso tipo.
+- Controlla che ogni campo atteso abbia uno stato confermato.
+- Aggiungi le variabili che hai trovato ma che non erano state proposte.
+- Metti la spunta “Ho confrontato tutti gli esemplari…” solo dopo il confronto.
+- Premi “Tipo compreso · prossimo”.
+- Se rimangono dubbi, raccogli altri esempi o chiariscili; il percorso resta
+  sul tipo corrente.
+
+6. LOG FINALE
+
+Quando ogni tipologia è stata compresa, premi “Genera log finale”. Il log
+registra tipologie, esemplari e varianti, candidati estratti con contesto e
+pagina, mappature campo-valore, stati e dubbi/domande che hanno guidato la
+verifica. Si trova in:
+
+%LOCALAPPDATA%\AppLu\Apprendimento\learning-log.jsonl
+
+Con “Esporta log JSON…” puoi creare una copia leggibile e consegnabile.
+I progressi intermedi si salvano automaticamente nello stesso percorso e
+vengono ripresi quando riapri l’app. Per ritrovare i documenti, non spostarli
+né rinominarli mentre il percorso è in corso.
+
+7. DATI E LIMITI
+
+- I file vengono letti sul PC. Non sono caricati online e non sono copiati nel
+  log come documenti integrali.
+- Il log dettagliato è attivo: contiene valori, brevi contesti testuali e nomi
+  dei file. Usalo solo con documenti autorizzati; se serve, togli la spunta
+  “Log dettagliato”.
+- Sono leggibili PDF con testo selezionabile, DOCX, TXT, MD e CSV.
+- I PDF scansionati senza testo, i vecchi DOC e le immagini non hanno OCR in
+  questa versione. Se non puoi verificare tutti i campi, non chiudere la
+  tipologia e chiedi il formato leggibile.
+- Questo strumento raccoglie e documenta requisiti. Non produce ordinativi e
+  non apprende o applica regole aziendali da solo.
+- Se Windows blocca l’avvio per le regole aziendali, non aggirare il blocco:
+  chiedi all’assistenza IT di verificare il pacchetto.
+
+Se l’app si chiude o mostra un errore, annota esattamente il messaggio e
+conserva il documento originale senza rinominarlo.
