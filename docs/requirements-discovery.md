@@ -2,7 +2,7 @@
 
 ## Materiale individuato in Gmail
 
-È stato esaminato il messaggio inoltrato “Proposta incarico Corso ARCS 26120 Corso di formazione manageriale per direttori Edizione 16” (16 settembre 2026), originato da Isabella Selleri, con tre allegati Word:
+È stato esaminato un messaggio di proposta di incarico con tre allegati Word:
 
 - `Accettazione incarico.docx`
 - `Dichiarazione conflitto d'interessi docente.docx`
