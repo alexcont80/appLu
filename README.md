@@ -26,10 +26,14 @@ poi visitare `http://localhost:8000` dalla cartella `appLu`.
 - `styles.css`: layout responsive.
 - `app.js`: stato dimostrativo e interazioni locali.
 - `docs/requirements-discovery.md`: riscontro documentale e requisiti ancora aperti.
+- `learning_app/`: prima applicazione desktop portable per etichettare documenti, verificare campi e produrre round di apprendimento locali.
+- `run_app.py`: avvio dell’app desktop in modalità sviluppo.
 
 ## Prossime fasi
 
-1. Ricevere i due modelli Word degli ordinativi, i PDF dei piani e i campioni di lettera, programma e CV.
-2. Definire le regole operative mancanti riportate in `docs/requirements-discovery.md`.
-3. Implementare moduli separati per estrazione, regole, generazione DOCX, revisione, conversione PDF, log e interfaccia.
-4. Validare su casi anonimizzati; solo dopo preparare il pacchetto Windows portable.
+1. Usare il banco di apprendimento locale su campioni autorizzati e raccogliere più round strutturati.
+2. Analizzare i log per fissare le regole mancanti riportate in `docs/requirements-discovery.md`.
+3. Ricevere i due modelli Word degli ordinativi, i PDF dei piani e campioni rappresentativi.
+4. Implementare i moduli definitivi per regole, generazione DOCX, revisione e conversione PDF.
+
+Per i dettagli, i limiti e il build portable Windows vedere [`learning_app/README.md`](learning_app/README.md).
