@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="it">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f5f7f4" />
+    <meta name="description" content="Prototipo dimostrativo per la preparazione degli ordinativi di pagamento dei docenti." />
+    <title>Ordinativi docenti · Prototipo</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <div class="shell">
+      <aside class="sidebar" aria-label="Navigazione principale">
+        <a class="brand" href="#top" aria-label="Ordinativi docenti, home">
+          <span class="brand-mark">O</span>
+          <span><strong>ordinativi</strong><small>DOCENTI · PROTOTIPO</small></span>
+        </a>
+        <div class="nav-label">AREA DI LAVORO</div>
+        <nav>
+          <a class="nav-item active" href="#pratica"><span class="nav-icon">▤</span>Nuovo ordinativo</a>
+          <a class="nav-item" href="#regole"><span class="nav-icon">◷</span>Regole e controlli</a>
+        </nav>
+        <div class="sidebar-note">
+          <span class="note-icon">i</span>
+          <p>Questa è una demo: usa dati di esempio e non legge documenti né cartelle aziendali.</p>
+        </div>
+        <div class="sidebar-bottom"><span class="live-dot"></span> Anteprima di sviluppo</div>
+      </aside>
+
+      <main id="top" class="main">
+        <header class="topbar">
+          <div class="breadcrumbs">Area formazione <span>/</span> Ordinativi di pagamento</div>
+          <div class="top-actions"><span class="prototype-pill">PROTOTIPO WEB</span><button class="avatar" aria-label="Profilo utente demo">AC</button></div>
+        </header>
+
+        <section class="page-heading" id="pratica">
+          <div>
+            <div class="eyebrow">PREPARAZIONE DOCUMENTI</div>
+            <h1>Nuovo ordinativo</h1>
+            <p class="lead">Rivedi i dati individuati e completa i passaggi che richiedono una verifica.</p>
+          </div>
+          <button class="button button-quiet" id="resetDemo"><span>↻</span> Ripristina demo</button>
+        </section>
+
+        <section class="stepper" aria-label="Fasi di lavorazione">
+          <div class="step done"><span class="step-number">✓</span><span>Documenti</span></div><i></i>
+          <div class="step active-step"><span class="step-number">2</span><span>Verifica dati</span></div><i></i>
+          <div class="step"><span class="step-number">3</span><span>Documento</span></div>
+        </section>
+
+        <div class="demo-banner"><span class="banner-icon">✳</span><div><strong>Modalità dimostrativa</strong><span>Il caso mostrato è fittizio. L’elaborazione reale sarà collegata all’applicazione Windows.</span></div><span class="banner-tag">NESSUN FILE CARICATO</span></div>
+
+        <section class="content-grid">
+          <div class="left-column">
+            <article class="card source-card">
+              <div class="card-heading">
+                <div class="heading-icon folder-icon">▰</div>
+                <div><h2>Cartella del docente</h2><p>Selezione simulata per questa anteprima</p></div>
+                <span class="state-chip state-info">DEMO</span>
+              </div>
+              <div class="folder-row">
+                <div class="file-glyph">▱</div><div class="file-info"><strong>Corso dimostrativo · Docente demo</strong><small>Lettera incarico, programma e CV rappresentati a scopo illustrativo</small></div>
+                <button class="button button-outline" id="chooseFolder">Scegli cartella</button>
+                <input id="folderInput" type="file" webkitdirectory directory multiple hidden />
+              </div>
+              <div class="file-list" id="fileList">
+                <div class="file-row"><span class="file-type pdf">PDF</span><span>Lettera incarico.pdf</span><span class="file-found">Trovato</span></div>
+                <div class="file-row"><span class="file-type pdf">PDF</span><span>Programma Edizione.pdf</span><span class="file-found">Trovato</span></div>
+                <div class="file-row"><span class="file-type doc">DOC</span><span>Perla / Curriculum Vitae.pdf</span><span class="file-found">Trovato</span></div>
+              </div>
+              <div class="folder-foot"><span>⌁</span> In produzione la cartella sarà letta localmente sul PC autorizzato.</div>
+            </article>
+
+            <article class="card data-card">
+              <div class="card-heading data-heading">
+                <div class="heading-icon data-icon">▦</div>
+                <div><h2>Dati dell’ordinativo</h2><p>Ogni valore mostra la fonte e lo stato della verifica</p></div>
+                <span class="state-chip state-pending" id="overallState">DA COMPLETARE</span>
+              </div>
+              <div class="data-table" id="dataTable" aria-live="polite"></div>
+              <div class="data-foot"><span class="yellow-swatch"></span> Evidenziazione gialla = dato non determinato con certezza</div>
+            </article>
+
+            <article class="card cost-card">
+              <div class="card-heading">
+                <div class="heading-icon euro-icon">€</div>
+                <div><h2>Calcolo del compenso</h2><p>Il calcolo usa solo le ore attribuite al docente nel programma</p></div>
+              </div>
+              <div class="calculation">
+                <div class="calc-item"><span>Tariffa oraria</span><strong>€ 100,00 <small>da lettera</small></strong></div>
+                <span class="calc-sign">×</span>
+                <div class="calc-item"><span>Ore del docente</span><strong>2,5 h <small>da programma</small></strong></div>
+                <span class="calc-sign">=</span>
+                <div class="calc-total"><span>Compenso</span><strong>€ 250,00</strong></div>
+              </div>
+              <div class="calculation-note"><span>✓</span> Le ore generali del corso non sostituiscono quelle dei singoli interventi.</div>
+            </article>
+          </div>
+
+          <div class="right-column">
+            <article class="card status-card">
+              <div class="status-top"><span class="status-symbol">!</span><div><span class="eyebrow">STATO PRATICA</span><h2 id="statusTitle">Da completare</h2></div></div>
+              <p class="status-copy" id="statusCopy">2 verifiche richieste prima di chiudere il documento.</p>
+              <div class="status-progress"><span id="progressBar"></span></div>
+              <div class="status-meta"><span>Campi verificati</span><strong id="progressText">7 di 9</strong></div>
+              <div class="divider"></div>
+              <h3>Da verificare</h3>
+              <ul class="issue-list" id="issueList"></ul>
+            </article>
+
+            <article class="card question-card" id="blsdCard">
+              <div class="question-top"><span class="question-mark">?</span><div><span class="eyebrow">DECISIONE RICHIESTA</span><h2>Il corso BLSD è una convenzione?</h2></div></div>
+              <p>La parola BLSD da sola non determina il centro di costo. Indica la decisione per questo esempio.</p>
+              <div class="choice-row"><button class="choice-button" data-convention="yes">Sì, è una convenzione</button><button class="choice-button" data-convention="no">No</button></div>
+              <div class="decision-result" id="decisionResult">In attesa di conferma · campo lasciato vuoto</div>
+            </article>
+
+            <article class="card trace-card">
+              <div class="card-heading compact-heading"><div class="heading-icon trace-icon">⌕</div><div><h2>Tracciabilità</h2><p>Fonti associate ai valori</p></div></div>
+              <div class="trace-list">
+                <div><span class="trace-dot green"></span><span>Lettera incarico</span><small>5 campi</small></div>
+                <div><span class="trace-dot green"></span><span>Programma Edizione</span><small>ore docente</small></div>
+                <div><span class="trace-dot amber"></span><span>Curriculum Vitae</span><small>titolo da classificare</small></div>
+                <div><span class="trace-dot amber"></span><span>Decisione utente</span><small>BLSD</small></div>
+              </div>
+              <button class="text-button" id="showRules">Vedi regole e punti da definire <span>→</span></button>
+            </article>
+
+            <div class="next-actions">
+              <button class="button button-primary" id="generateButton">Continua alla revisione <span>→</span></button>
+              <p>Il PDF verrà prodotto solo dopo la revisione del documento Word.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="rules-section" id="regole">
+          <div class="rules-title"><div><div class="eyebrow">SPECIFICA OPERATIVA</div><h2>Regole certe e punti da definire</h2></div><span class="state-chip state-info">NESSUNA ASSUNZIONE</span></div>
+          <div class="rules-grid">
+            <article class="rule-panel"><div class="rule-heading"><span class="check-badge">✓</span><h3>Regole già determinate</h3></div><ul>
+              <li>Dominio esatto <code>@arcs.sanita.fvg.it</code> → docente interno ARCS.</li>
+              <li>Il compenso orario usa solo le ore degli interventi attribuiti al docente nel Programma Edizione.</li>
+              <li>Il CV si cerca in <code>Perla</code>; senza CV, il conto resta vuoto e viene segnalato.</li>
+              <li>Un dato incerto resta vuoto, evidenziato e tracciato come “da completare”.</li>
+              <li>La scelta del centro di costo per BLSD richiede conferma umana.</li>
+            </ul></article>
+            <article class="rule-panel pending-panel"><div class="rule-heading"><span class="pending-badge">…</span><h3>Da definire prima dell’automazione</h3></div><ul>
+              <li>Modelli Word dell’ordinativo, campi e nomi dei file di output.</li>
+              <li>Dicitura dei compensi, conteggio dei giorni e struttura del Programma Edizione.</li>
+              <li>Regola di confronto dei corsi nei piani formativi e gestione dei duplicati.</li>
+              <li>Codici contabili e criteri definitivi per classificare il titolo di studio.</li>
+              <li>Regola per BLSD quando non è convenzione e casi presenti in entrambi i piani.</li>
+              <li>Per il personale interno, la modulistica distingue attività in orario e fuori orario di servizio; serve una regola per collegare la casistica al compenso.</li>
+            </ul></article>
+          </div>
+          <article class="reference-card">
+            <div class="reference-heading"><span class="reference-icon">↗</span><div><h3>Documentazione di riferimento individuata</h3><p>Modulistica allegata al messaggio di Isabella Selleri · usata per chiarire il perimetro, non pubblicata nella demo</p></div><span class="state-chip state-info">3 DOCUMENTI</span></div>
+            <div class="reference-items">
+              <div><strong>Accettazione incarico</strong><span>Distingue dipendenti ARCS e docenti esterni; prevede compenso orario o forfettario, gratuità e richiesta separata di rimborso spese.</span></div>
+              <div><strong>Dichiarazione docente esterno</strong><span>Raccoglie il regime di retribuzione dichiarato dal docente e le coordinate bancarie; non è il modello dell’ordinativo.</span></div>
+              <div><strong>Dichiarazione conflitto d’interessi</strong><span>È un modulo dichiarativo da firmare; non fornisce i codici contabili né il conto di imputazione.</span></div>
+            </div>
+            <div class="reference-foot"><strong>Esito dell’analisi:</strong> il messaggio chiarisce alcuni casi di compenso e i moduli di incarico, ma non contiene i due modelli Word dell’ordinativo né i piani formativi. Le tariffe della modulistica non vengono esposte in questa anteprima pubblica.</div>
+          </article>
+        </section>
+
+        <footer class="footer"><span>ORDINATIVI DOCENTI</span><span>Prototipo dimostrativo · Nessun documento elaborato</span></footer>
+      </main>
+    </div>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  </body>
+</html>
