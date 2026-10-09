@@ -1,0 +1,18 @@
+{
+  "budget": 500,
+  "teams": 10,
+  "nuisance_enabled": true,
+  "nuisance_quality_floor": 0.72,
+  "nuisance_market_discount": 0.70,
+  "nuisance_accidental_win_discount": 0.86,
+  "nuisance_max_share_of_free_budget": 0.22,
+  "principles": [
+    "titolarita-first",
+    "reward-useful-multirole",
+    "penalize-injury-prone",
+    "dynamic-scarcity",
+    "opponent-bankroll-awareness",
+    "price-support-only-if-accidental-win-is-acceptable",
+    "fail-closed"
+  ]
+}
